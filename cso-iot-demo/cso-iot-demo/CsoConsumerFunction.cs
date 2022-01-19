@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace cso_iot_demo
 {
-    public class CsoConsumer
+    public class CsoConsumerFunction
     {
         private static ServiceClient _serviceClient;
         private ILogger _logger;
@@ -18,7 +18,7 @@ namespace cso_iot_demo
 
         private const string RepairMessageType = "Repairs";
 
-        [FunctionName(nameof(CsoConsumer))]
+        [FunctionName(nameof(CsoConsumerFunction))]
         public async Task Run([ServiceBusTrigger("%CsoQueueName%", Connection = "ConnectionStrings:CsoServiceBus")]string message, ILogger log)
         {
             _logger = log;

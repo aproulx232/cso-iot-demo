@@ -19,7 +19,7 @@ namespace cso_iot_demo
             log.LogInformation($"Processing Device Message: {deviceMessage}");
             deviceMessage = "[\"202741038: 1: PSI 7 Day: \"]";
 
-            await _repairItemRepository.CompleteRepairItem(202741039, 1, 19, 13);
+            await _repairItemRepository.CompleteRepairItem(202741039, 1);
         }
     }
 }

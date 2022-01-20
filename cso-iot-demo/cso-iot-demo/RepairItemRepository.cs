@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ namespace cso_iot_demo
 {
     public interface IRepairItemRepository
     {
-        Task CompleteRepairItem(int repairOrderId, int repairItemId, int shopTypeId, int inspectionId);
+        Task CompleteRepairItem(int repairOrderId, int repairItemId);
     }
 
     public class RepairItemRepository : IRepairItemRepository
@@ -20,9 +21,12 @@ namespace cso_iot_demo
             _auctionDbContext = auctionDbContext;
         }
 
-        public async Task CompleteRepairItem(int repairOrderId, int repairItemId, int shopTypeId, int inspectionId)
+        public async Task CompleteRepairItem(int repairOrderId, int repairItemId)
         {
-            await using var completeRepairItem = _auctionDbContext.Database.GetDbConnection().CreateCommand();
+            var repairItem = await _auctionDbContext.RepairItems.AsNoTracking().Where(ri =>
+                ri.RepairOrderId == repairOrderId && ri.RepairItemId == repairItemId).FirstOrDefaultAsync();
+
+			await using var completeRepairItem = _auctionDbContext.Database.GetDbConnection().CreateCommand();
 
             completeRepairItem.CommandText = @"exec dbo.spvt_m_save_repair_item 
                 @OrderID = @RepairOrderId, 
@@ -73,8 +77,8 @@ namespace cso_iot_demo
                 @CompletedDtm = @CompletedDtm";
             completeRepairItem.Parameters.Add(new SqlParameter("@RepairOrderId", SqlDbType.Int) { Value = repairOrderId, Direction = ParameterDirection.Input });
             completeRepairItem.Parameters.Add(new SqlParameter("@RepairItemId", SqlDbType.Int) { Value = repairItemId, Direction = ParameterDirection.Input });
-            completeRepairItem.Parameters.Add(new SqlParameter("@ShopTypeId", SqlDbType.Int) { Value = shopTypeId, Direction = ParameterDirection.Input });
-            completeRepairItem.Parameters.Add(new SqlParameter("@InspectionId", SqlDbType.Int) { Value = inspectionId, Direction = ParameterDirection.Input });
+            completeRepairItem.Parameters.Add(new SqlParameter("@ShopTypeId", SqlDbType.Int) { Value = repairItem.ShopTypeId, Direction = ParameterDirection.Input });
+            completeRepairItem.Parameters.Add(new SqlParameter("@InspectionId", SqlDbType.Int) { Value = repairItem.InspActionId, Direction = ParameterDirection.Input });
             completeRepairItem.Parameters.Add(new SqlParameter("@CompletedDtm", SqlDbType.DateTime) { Value = DateTime.Now, Direction = ParameterDirection.Input });
             await _auctionDbContext.Database.OpenConnectionAsync();
             await completeRepairItem.ExecuteScalarAsync();

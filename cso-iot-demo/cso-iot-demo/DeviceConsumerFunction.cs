@@ -17,9 +17,11 @@ namespace cso_iot_demo
         public async Task Run([ServiceBusTrigger("%DeviceQueueName%", Connection = "ConnectionStrings:DeviceServiceBus")]string deviceMessage, ILogger log)
         {
             log.LogInformation($"Processing Device Message: {deviceMessage}");
-            deviceMessage = "[\"202741038: 1: PSI 7 Day: \"]";
-
-            await _repairItemRepository.CompleteRepairItem(202741039, 1);
+            var test  = deviceMessage.Split('\"');
+            var test2 = test[1].Split(":");
+            int.TryParse(test2[0], out var repairOrderId);
+            int.TryParse(test2[1], out var repairItemId);
+            await _repairItemRepository.CompleteRepairItem(repairOrderId, repairItemId);
         }
     }
 }

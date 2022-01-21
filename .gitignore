@@ -32,3 +32,4 @@
 *.app
 /cso-iot-demo/.vs/cso-iot-demo/v17/.suo
 /cso-iot-demo/.vs/cso-iot-demo/config/applicationhost.config
+/cso-iot-demo/.vs/cso-iot-demo

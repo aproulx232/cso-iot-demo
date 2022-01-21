@@ -45,7 +45,9 @@ namespace cso_iot_demo
 
         private async Task ProcessRepairsMessage(InventoryDataMessage inventoryDataMessage)
         {
-            var repairItems = inventoryDataMessage.InventoryData.Repairs.SelectMany(r => r.RepairItems, (ro, ri) => new { ro, ri }).Select(roandi => $"{roandi.ro.RepairOrderDetails.RepairOrderId}: {roandi.ri.RepairItemId}: {roandi.ri.Action}: {roandi.ri.Comment}");
+            var repairItems = inventoryDataMessage.InventoryData.Repairs
+                .SelectMany(r => r.RepairItems, (ro, ri) => new { ro, ri }).Where(roandri => roandri.ri.CompleteFlag != "Y").Select(roandi =>
+                    $"{roandi.ro.RepairOrderDetails.RepairOrderId}: {roandi.ri.RepairItemId}: {roandi.ri.Action}: {roandi.ri.Comment}");
             await SendCloudToDeviceMessage(JsonConvert.SerializeObject(repairItems));
         }
 
